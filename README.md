@@ -1,6 +1,6 @@
 # SignalGeneration
 
-## step0:
+## step0 (LHE to GENSIM):
 
 ```
 cmsrel CMSSW_7_6_3
@@ -22,7 +22,8 @@ cmsDriver.py Configuration/Generator/python/ppTohToSS1SS2_SS1Tobb_SS2Toveve.py -
 cmsRun test_step0_cfg.py
 ```
 
-## step1:
+## step1 (GENSIM to DIGIRECO):
+
 
 ```
 cmsrel CMSSW_8_0_21
@@ -46,7 +47,8 @@ cmsDriver.py step1 --filein file:/afs/cern.ch/user/j/jmao/work/public/releases/c
 cmsRun test_step1_cfg.py
 ```
 
-## step2:
+## step2 (DIGIRECO to AODSIM):
+
 
 ```
 cd CMSSW_8_0_21/src

@@ -3,6 +3,7 @@
 ## step0 (LHE to GENSIM):
 
 ```
+export SCRAM_ARCH=slc6_amd64_gcc493
 cmsrel CMSSW_7_6_3
 
 cd CMSSW_7_6_3/src

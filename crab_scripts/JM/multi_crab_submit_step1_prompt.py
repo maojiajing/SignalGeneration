@@ -1,0 +1,72 @@
+if __name__ == '__main__':
+
+    from CRABAPI.RawCommand import crabCommand
+    from CRABClient.ClientExceptions import ClientException
+    from httplib import HTTPException
+
+    #from CRABClient.UserUtilities import config
+    #config = config()
+    from WMCore.Configuration import Configuration
+    config = Configuration()
+
+    config.section_("General")
+    config.General.workArea = 'crab'
+    config.General.transferOutputs = True
+    config.General.transferLogs = True
+
+    config.section_("JobType")
+    config.JobType.pluginName = 'Analysis'
+    config.JobType.psetName = '/afs/cern.ch/user/j/jmao/work/public/releases/cms-llp/aodsim/config/RunIISummer16_withISR/n3n2-n1-hbb-hbb/n3n2-n1-hbb-hbb_step1_cfg.py'
+    #config.JobType.psetName = '/afs/cern.ch/work/c/christiw/public/LLP/miniaod_sim/config/RunIISummer16_withISR/ppTohToSS1SS2_SS1Tobb_SS2Toveve_withISR_step1_cfg.py'
+    config.JobType.numCores = 1
+    config.section_("Data")
+    config.Data.inputDBS = 'phys03'
+    config.Data.splitting = 'FileBased'
+    config.Data.unitsPerJob = 1 #when splitting is 'Automatic', this represents jobs target runtime(minimum 180)
+    config.Data.publication = True
+    config.Data.ignoreLocality = True
+
+    config.section_("Site")
+    config.Site.storageSite = 'T2_US_Caltech'
+    config.Site.whitelist = ['T2_US_Caltech']
+    config.Site.ignoreGlobalBlacklist = True
+    
+    def submit(config):
+        try:
+            crabCommand('submit', config = config)
+        except HTTPException as hte:
+            print "Failed submitting task: %s" % (hte.headers)
+        except ClientException as cle:
+            print "Failed submitting task: %s" % (cle)
+
+    #############################################################################################
+    ## From now on that's what users should modify: this is the a-la-CRAB2 configuration part. ##
+    #############################################################################################
+    ev = 100000
+    mchi_list = [200]
+    #mh_list = [300]
+    pl_list = ['prompt']
+    #pl_list = [100, 1000, 10000]
+    mode_list = ["x1n2-n1-wlv-hbb"]
+    #mode_list = ["n3n2-n1-hbb-hbb"]
+    pset_dir = "/afs/cern.ch/user/j/jmao/work/public/releases/cms-llp/aodsim/config/RunIISummer16_withISR/"
+    for i in range(len(mode_list)):
+	mode = mode_list[i]
+	for mchi in mchi_list:
+	    for pl in pl_list:
+		spec = mode+"_m{}_{}_ev{}".format(mchi,pl,ev)
+		name = mode+"_mchi{}_{}_ev{}".format(mchi,pl,ev)
+		
+		#config.Data.outputPrimaryDataset = spec
+
+    		#config.General.requestName = 'test_jm_CMSSW_8_0_21_DR_CaltechT2'
+		#config.Data.inputDataset = '/test_jm/jmao-crab_test0909_jm_CMSSW_7_6_3_GENSIM_CaltechT2-04cfe7565b7fdeb11d83449268c16a11/USER' 
+    		config.General.requestName = 'CMSSW_8_0_21_'+name+'_DR_CaltechT2'
+		#/n3n2-n1-hbb-hbb_m200_prompt_ev100000/jmao-crab_CMSSW_7_6_3_n3n2-n1-hbb-hbb_mchi200_prompt_ev100000_GENSIM_CaltechT2-04cfe7565b7fdeb11d83449268c16a11/USER
+		config.Data.inputDataset = '/'+spec+'/jmao-crab_CMSSW_7_6_3_'+name+'_GENSIM_CaltechT2-04cfe7565b7fdeb11d83449268c16a11/USER' 
+		config.Data.outLFNDirBase = '/store/group/phys_exotica/jmao/aodsim/RunIISummer16/DR/MSSM-1d-prod/'
+		if mode=="x1n2-n1-wlv-hbb":
+			config.Data.outLFNDirBase = '/store/group/phys_exotica/jmao/aodsim/RunIISummer16/DR/MSSM-2d-prod/'
+		#print(config.Data.inputDataset)
+		submit(config)
+
